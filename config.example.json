@@ -1,0 +1,15 @@
+{
+  "smtp": {
+    "host": "smtp.qq.com",
+    "port": 465,
+    "secure": true,
+    "user": "your@qq.com",
+    "pass": "邮箱授权码（不是登录密码）",
+    "from": "your@qq.com"
+  },
+  "admin": {
+    "email": "your-admin@example.com",
+    "password": "超级管理员密码（仅服务器本地 config.json，勿提交）"
+  },
+  "mock": false
+}

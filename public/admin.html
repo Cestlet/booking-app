@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>约单管理后台</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div id="loginView" class="admin-shell">
+    <div class="login-box">
+      <div class="auth-tabs">
+        <button id="loginTab" class="tab-btn active">登录</button>
+        <button id="registerTab" class="tab-btn">注册</button>
+      </div>
+      <h1>摄影约单后台</h1>
+      <div id="loginFields">
+        <div class="field"><label>邮箱</label><input id="emailInput" class="input" type="email" placeholder="you@example.com"></div>
+        <div class="field"><label>密码</label><input id="passwordInput" class="input" type="password"></div>
+        <button id="loginBtn" class="btn btn-primary" style="width:100%">登录</button>
+      </div>
+      <div id="registerFields" class="hidden">
+        <div class="field"><label>邮箱</label><input id="registerEmailInput" class="input" type="email" placeholder="you@example.com"></div>
+        <div class="field">
+          <label>邮箱验证码</label>
+          <div style="display:flex;gap:8px">
+            <input id="registerCodeInput" class="input" type="text" maxlength="6" inputmode="numeric" placeholder="6 位验证码" style="flex:1">
+            <button id="sendCodeBtn" class="btn btn-ghost" style="flex:0 0 auto;white-space:nowrap">获取验证码</button>
+          </div>
+        </div>
+        <div class="field"><label>摄影昵称</label><input id="registerNameInput" class="input" type="text"></div>
+        <div class="field"><label>密码</label><input id="registerPasswordInput" class="input" type="password"></div>
+        <button id="registerBtn" class="btn btn-cyan" style="width:100%">注册并进入后台</button>
+      </div>
+      <div id="loginError" class="notice hidden"></div>
+    </div>
+  </div>
+
+  <div id="adminView" class="admin-shell hidden">
+    <header class="topbar">
+      <div>
+        <h1>约单管理后台</h1>
+        <div class="muted">表单模板 / 时间段 / 预约与收款</div>
+      </div>
+      <button id="logoutBtn" class="btn btn-ghost">退出</button>
+    </header>
+    <div class="card profile-bar">
+      <div>
+        <strong id="profileName"></strong>
+        <span class="tag">ID：<span id="profileId"></span></span>
+        <span class="tag" id="profileUsername"></span>
+        <div style="margin-top:8px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <span class="muted" style="font-size:12px">接单链接：</span>
+          <span id="profileLink" style="font-size:12px;word-break:break-all;color:var(--cyan)"></span>
+          <button id="copyProfileLink" class="btn btn-ghost" style="padding:3px 10px;font-size:12px">复制</button>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+        <div id="bookingQr" title="客妹扫码打开接单页"></div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <button id="qrSaveImageBtn" class="btn btn-cyan">保存图片</button>
+          <button id="qrEditBtn" class="btn btn-ghost">编辑名称</button>
+        </div>
+      </div>
+    </div>
+
+    <nav class="tabbar" id="photographerTabbar">
+      <button class="tab-btn active" data-tab="bookings">预约管理</button>
+      <button class="tab-btn" data-tab="afdian">支付设置</button>
+      <button class="tab-btn" data-tab="products">商品管理</button>
+      <button class="tab-btn" data-tab="forms">表单模板</button>
+      <button class="tab-btn" data-tab="times">时间模板</button>
+      <button class="tab-btn" data-tab="schedules">发布日程</button>
+    </nav>
+
+    <nav class="tabbar hidden" id="superTabbar">
+      <button class="tab-btn active" data-tab="super-stats">统计</button>
+      <button class="tab-btn" data-tab="super-accounts">账号</button>
+      <button class="tab-btn" data-tab="super-schedules">约单</button>
+      <button class="tab-btn" data-tab="super-bookings">预约</button>
+    </nav>
+
+    <section id="panel-bookings" class="panel active">
+      <div class="template-head">
+        <div class="section-title" style="margin:0"><h2>预约管理</h2><small id="bookingCount"></small></div>
+        <button id="viewPayQrBtn" class="btn btn-ghost">查看收款码</button>
+      </div>
+      <div class="card" style="margin-top:12px;padding:10px 14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+        <span id="dateFilterLabel" style="font-size:17px;font-weight:700;color:var(--ink)">全部日期</span>
+        <div style="position:relative;display:inline-flex">
+          <button id="dateFilterToggle" class="btn btn-ghost" style="padding:4px 12px;font-size:14px">▾</button>
+          <select id="bookingDateFilter" style="position:absolute;inset:0;opacity:0;cursor:pointer"></select>
+        </div>
+      </div>
+      <div id="bookingStats" class="grid stats" style="margin-top:12px"></div>
+      <div id="bookingRows" class="grid" style="margin-top:14px"></div>
+    </section>
+
+    <section id="panel-afdian" class="panel">
+      <div class="section-title"><h2>收款码设置</h2></div>
+      <div class="card">
+        <div style="display:flex;gap:16px;flex-wrap:wrap">
+          <div style="flex:1;min-width:200px;text-align:center">
+            <label class="muted" style="display:block;font-size:12px;margin-bottom:8px">微信收款码</label>
+            <div id="wechatQrPreview" style="min-height:120px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.5);border-radius:12px;padding:8px"><span class="muted" style="font-size:12px">未上传</span></div>
+            <input id="wechatQrFile" class="file-input" type="file" accept="image/*" style="margin-top:8px">
+          </div>
+          <div style="flex:1;min-width:200px;text-align:center">
+            <label class="muted" style="display:block;font-size:12px;margin-bottom:8px">支付宝收款码</label>
+            <div id="alipayQrPreview" style="min-height:120px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.5);border-radius:12px;padding:8px"><span class="muted" style="font-size:12px">未上传</span></div>
+            <input id="alipayQrFile" class="file-input" type="file" accept="image/*" style="margin-top:8px">
+          </div>
+        </div>
+        <div class="muted" style="font-size:12px;margin-top:8px">上传后客妹在预约结果页可查看收款码扫码支付（微信/支付宝分别上传，至少上传一个）</div>
+      </div>
+
+      <div class="section-title" style="margin-top:24px"><h2>配置爱发电支付</h2></div>
+      <div class="card">
+        <div class="field">
+          <label>爱发电 user_id</label>
+          <input id="afdianUserId" class="input" placeholder="爱发电设置中心获取">
+        </div>
+        <div class="field">
+          <label>爱发电 token</label>
+          <input id="afdianToken" class="input" type="password" placeholder="留空表示不修改">
+        </div>
+        <div class="field">
+          <label>爱发电下单链接（必填，所有商品共用；在爱发电设置中心复制 order/create 链接）</label>
+          <input id="afdianPlanUrl" class="input" placeholder="https://ifdian.net/order/create?user_id=xxxx">
+        </div>
+        <div class="field">
+          <label>爱发电主页链接（可选，用于展示）</label>
+          <input id="afdianHomeUrl" class="input" placeholder="https://afdian.com/a/xxxx">
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button id="saveAfdianConfigBtn" class="btn btn-primary">保存配置</button>
+          <button id="afdianPollBtn" class="btn btn-ghost">手动同步订单</button>
+          <a href="https://afdian.com/dashboard/dev" target="_blank" rel="noopener" class="btn btn-ghost">前往爱发电开发者中心 ↗</a>
+        </div>
+        <div class="muted" style="margin-top:10px;font-size:12px;line-height:1.8">
+          使用步骤：<br>
+          ① 点击上方「前往爱发电开发者中心 ↗」，注册并获取 user_id 和 token，填入上方字段；<br>
+          ② 在爱发电开发者后台的 Webhook 回调链接中填入：<code id="webhookUrlText"></code>（<span id="webhookUrl" style="cursor:pointer;color:var(--cyan);text-decoration:underline" onclick="copyWebhookUrl()" title="点击复制">点击复制</span>）<br>
+          ③ 「爱发电下单链接」：打开爱发电个人主页，点击「自选金额发电」，复制网址并填入；<br>
+          ④ 点「保存配置」即可生效，再点「手动同步订单」验证连通（返回「同步完成」即成功）。
+        </div>
+      </div>
+
+      <div class="section-title" style="margin-top:24px"><h2>待核对订单</h2></div>
+      <div id="afdianPendingList" class="grid" style="margin-top:10px"></div>
+    </section>
+
+    <section id="panel-products" class="panel">
+      <div class="template-head">
+        <div class="section-title" style="margin:0"><h2>商品管理</h2></div>
+        <button id="newProductBtn" class="btn btn-primary">上架新商品</button>
+      </div>
+      <div id="productList" class="grid" style="margin-top:14px"></div>
+    </section>
+
+    <section id="panel-forms" class="panel">
+      <div class="template-head">
+        <div class="section-title" style="margin:0"><h2>表单模板</h2></div>
+        <button id="newFormBtn" class="btn btn-primary">新建模板</button>
+      </div>
+      <div id="formTemplates" class="grid template-row" style="margin-top:14px"></div>
+    </section>
+
+    <section id="panel-times" class="panel">
+      <div class="template-head">
+        <div class="section-title" style="margin:0"><h2>时间模板</h2></div>
+        <button id="newTimeBtn" class="btn btn-primary">新建模板</button>
+      </div>
+      <div id="timeTemplates" class="grid template-row" style="margin-top:14px"></div>
+    </section>
+
+    <section id="panel-schedules" class="panel">
+      <div class="template-head">
+        <div class="section-title" style="margin:0"><h2>发布新日期</h2></div>
+        <button id="createScheduleBtn" class="btn btn-primary">生成日程</button>
+      </div>
+      <div class="schedule-form">
+        <div class="field">
+          <label>日期</label>
+          <input id="newScheduleDate" class="input" type="date">
+        </div>
+        <div class="field">
+          <label>表单模板</label>
+          <select id="newScheduleFormTemplate" class="select"></select>
+        </div>
+        <div class="field">
+          <label>时间模板</label>
+          <select id="newScheduleTimeTemplate" class="select"></select>
+        </div>
+      </div>
+      <div class="section-title" style="margin-top:24px"><h2>已发布日程</h2></div>
+      <div id="schedulesList" class="grid" style="margin-top:10px"></div>
+    </section>
+
+    <!-- 管理员视图（与摄影师共用后台） -->
+    <section id="panel-super-stats" class="panel">
+      <div id="statCards" class="grid stats"></div>
+    </section>
+
+    <section id="panel-super-accounts" class="panel">
+      <div class="table-wrap" style="margin-top:14px">
+        <table>
+          <thead>
+            <tr>
+              <th>邮箱</th>
+              <th>昵称</th>
+              <th>注册时间</th>
+              <th>状态</th>
+              <th>商品</th>
+              <th>预约</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="accountRows"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="panel-super-schedules" class="panel">
+      <div id="scheduleList" class="grid" style="margin-top:14px"></div>
+    </section>
+
+    <section id="panel-super-bookings" class="panel">
+      <div class="table-wrap" style="margin-top:14px">
+        <table>
+          <thead>
+            <tr>
+              <th>预约编号</th>
+              <th>摄影师</th>
+              <th>商品</th>
+              <th>日期 时段</th>
+              <th>状态</th>
+              <th>定金</th>
+              <th>尾款</th>
+              <th>创建时间</th>
+            </tr>
+          </thead>
+          <tbody id="superBookingRows"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 摄影师详情（点击账号进入） -->
+    <section id="panel-super-detail" class="panel">
+      <div style="margin-top:14px">
+        <button id="superDetailBack" class="btn btn-ghost">← 返回账号列表</button>
+        <div id="superDetailInfo" class="card" style="margin-top:12px"></div>
+        <div id="superDetailStats" class="grid stats" style="margin-top:12px"></div>
+        <div class="section-title" style="margin-top:20px"><h2>发布的约单</h2></div>
+        <div id="superDetailSchedules" class="grid" style="margin-top:10px"></div>
+        <div class="section-title" style="margin-top:20px"><h2>预约情况</h2></div>
+        <div class="table-wrap" style="margin-top:10px">
+          <table>
+            <thead>
+              <tr>
+                <th>预约编号</th>
+                <th>商品</th>
+                <th>日期 时段</th>
+                <th>状态</th>
+                <th>定金</th>
+                <th>尾款</th>
+                <th>创建时间</th>
+              </tr>
+            </thead>
+            <tbody id="superDetailBookingRows"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <footer class="site-footer">@砚心lyric.的约单小工具 · v0.2.0</footer>
+
+  <div id="detailModal" class="modal-backdrop hidden">
+    <div class="modal-card">
+      <div class="template-head">
+        <h2>预约详情</h2>
+        <button id="closeModalBtn" class="icon-btn">×</button>
+      </div>
+      <div id="detailBody"></div>
+    </div>
+  </div>
+
+  <script src="/vendor/qrcode.min.js?v=20260815b"></script>
+  <script src="/admin.js?v=20260815b"></script>
+</body>
+</html>

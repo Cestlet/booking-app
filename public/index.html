@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>二次元摄影约单</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body class="booking">
+  <main class="page">
+    <section class="hero">
+      <span class="seal">COS 约拍</span>
+      <h1 id="siteName">二次元摄影约单</h1>
+      <p id="siteNotice">正在加载约单信息...</p>
+    </section>
+
+    <section class="section">
+      <div class="section-title">
+        <h2>选择日期</h2>
+        <small id="dateHint">共 0 天可约</small>
+      </div>
+      <div id="dateTabs" class="date-tabs"></div>
+    </section>
+
+    <section class="section">
+      <div class="section-title">
+        <h2>选择商品</h2>
+        <small>选择拍摄内容</small>
+      </div>
+      <div id="productList" class="slot-list"></div>
+    </section>
+
+    <section class="section">
+      <div class="section-title">
+        <h2>选择开始时间</h2>
+        <small id="productSlotHint"></small>
+      </div>
+      <div id="slotList" class="slot-list"></div>
+    </section>
+
+    <section id="formSection" class="section hidden">
+      <div class="section-title">
+        <h2>填写约单信息</h2>
+        <small id="selectedSlotLabel"></small>
+      </div>
+      <div class="form-card">
+        <form id="bookingForm"></form>
+        <div id="formError" class="notice hidden"></div>
+        <div class="form-actions">
+          <button id="submitBtn" class="btn btn-primary submit-btn" type="button">提交预约</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="resultSection" class="section hidden">
+      <div class="result-card" id="resultCard"></div>
+      <button id="backBtn" class="btn btn-ghost" style="width:100%;margin-top:14px" type="button">返回继续约拍</button>
+    </section>
+
+    <div class="notice" id="payNotice">
+      提交前请确认信息无误。
+    </div>
+
+    <footer class="site-footer">@砚心lyric.的约单小工具 · v0.2.0</footer>
+  </main>
+
+  <script src="/booking.js?v=20260812"></script>
+</body>
+</html>

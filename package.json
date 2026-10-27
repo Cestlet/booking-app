@@ -1,0 +1,9 @@
+{
+  "name": "cos-booking-app",
+  "version": "0.2.0",
+  "private": true,
+  "description": "二次元摄影约单手机预约工具框架",
+  "scripts": {
+    "start": "node server.js"
+  }
+}
